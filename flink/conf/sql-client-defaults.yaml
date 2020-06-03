@@ -30,23 +30,23 @@ tables:
     type: source
     update-mode: append
     schema:
-    - name: userId
+    - name: user_id
       type: BIGINT
-    - name: noteId
+    - name: note_id
       type: BIGINT
     - name: behavior
       type: STRING
-    - name: rowtime
+    - name: ts
       type: TIMESTAMP
       rowtime:
         timestamps:
           type: "from-field"
-          from: "rowtime"
+          from: "event_time"
         watermarks:
           type: "periodic-bounded"
-          delay: "60000"
+          delay: "0"
     connector:
-      # property-version: 1
+      property-version: 1
       type: kafka
       version: universal
       topic: note-info
@@ -58,14 +58,55 @@ tables:
         value: mykafka:9092
       - key: group.id
         value: testGroup
-      format: json
+        #format: csv 
         # property-version: 1
-        # type: json
+        # type: csv 
         # schema: "ROW(userId BIGINT, noteId BIGINT, behavior STRING, rowtime TIMESTAMP)"
-    # format:
-    #   property-version: 1
-    #   type: json
-    #   schema: "ROW(userId LONG, behavior STRING, eventTime TIMESTAMP)"
+    format:
+      type: csv
+      # property-version: 1
+      schema: "ROW(user_id BIGINT, note_id BIGINT, behavior STRING, event_time TIMESTAMP)"
+
+  - name: login_info
+    type: source
+    update-mode: append
+    schema:
+    - name: user_id
+      type: BIGINT
+    - name: behavior
+      type: STRING
+    - name: ts
+      type: TIMESTAMP
+      rowtime:
+        timestamps:
+          type: "from-field"
+          from: "event_time"
+        watermarks:
+          type: "periodic-bounded"
+          delay: "0"
+    connector:
+      property-version: 1
+      type: kafka
+      version: universal
+      topic: login-info
+      startup-mode: earliest-offset
+      properties:
+      - key: zookeeper.connect
+        value: myzookeeper:2181
+      - key: bootstrap.servers
+        value: mykafka:9092
+      - key: group.id
+        value: testGroup
+        #format: csv 
+        # property-version: 1
+        # type: csv 
+        # schema: "ROW(userId BIGINT, noteId BIGINT, behavior STRING, rowtime TIMESTAMP)"
+    format:
+      type: csv
+      # property-version: 1
+      schema: "ROW(user_id BIGINT, behavior STRING, event_time TIMESTAMP)"
+
+
 
 # functions:
 # - name: timeDiff
@@ -88,7 +129,7 @@ tables:
 # Execution properties allow for changing the behavior of a table program.
 
 execution:
-  planner: old               # using the Blink planner
+  planner: blink               # using the Blink planner
   type: streaming              # 'batch' or 'streaming' execution
   result-mode: table           # 'changelog' or 'table' presentation of results
   parallelism: 1               # parallelism of the program

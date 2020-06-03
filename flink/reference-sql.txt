@@ -1,0 +1,116 @@
+CREATE TABLE note_info (
+  user_id BIGINT,
+  note_id BIGINT,
+  behavior STRING,
+  ts TIMESTAMP(3),
+  WATERMARK FOR ts AS ts - INTERVAL '0.001' SECOND
+) WITH (
+  'connector.type' = 'kafka',       
+  'connector.version' = 'universal',     -- required: valid connector version are
+                                    -- "0.8", "0.9", "0.10", "0.11", and "universal"
+  'connector.topic' = 'note-info', -- required: topic name from which the table is read
+  'connector.properties.zookeeper.connect' = 'myzookeeper:2181', -- required: specify the ZooKeeper connection string
+  'connector.properties.bootstrap.servers' = 'mykafka:9092', -- required: specify the Kafka server connection st
+  'format.type' = 'csv'
+)
+
+# mysql-sink
+CREATE TABLE login_warning (
+  user_id BIGINT,
+  `count` BIGINT,
+  begin_time TIMESTAMP(3),
+  end_time TIMESTAMP(3)
+) WITH (
+  'connector.type' = 'jdbc', -- required: specify this table type is jdbc
+  'connector.url' = 'jdbc:mysql://mymysql:3306/note', -- required: JDBC DB url
+  'connector.table' = 'login_warning',  -- required: jdbc table name
+  'connector.driver' = 'com.mysql.jdbc.Driver', -- optional: the class name of the JDBC driver to use to connect to this URL. 
+                                                -- If not set, it will automatically be derived from the URL.
+  'connector.username' = 'root', -- optional: jdbc user name and password
+  'connector.password' = '123456',
+  'connector.write.flush.interval' = '2s'
+)
+
+CREATE TABLE note_statistics2 (
+  user_id BIGINT,
+  note_id BIGINT,
+  start_time TIMESTAMP(3),
+  end_time TIMESTAMP(3),
+  `count` BIGINT
+) WITH (
+  'connector.type' = 'jdbc', -- required: specify this table type is jdbc
+  'connector.url' = 'jdbc:mysql://mymysql:3306/note', -- required: JDBC DB url
+  'connector.table' = 'note_statistics2',  -- required: jdbc table name
+  'connector.driver' = 'com.mysql.jdbc.Driver', -- optional: the class name of the JDBC driver to use to connect to this URL. 
+                                                -- If not set, it will automatically be derived from the URL.
+  'connector.username' = 'root', -- optional: jdbc user name and password
+  'connector.password' = '123456',
+  'connector.write.flush.interval' = '2s'
+)
+
+
+
+
+CREATE TABLE note_statistics2 (
+    user_id BIGINT,
+    note_id BIGINT,
+    start_time DATETIME,
+    end_time DATETIME,
+    count BIGINT
+)
+
+
+# 统计每10秒内每个用户对每个日记的点击量
+SELECT 
+    user_id,
+    note_id,
+    TUMBLE_START(ts, INTERVAL '10' SECOND) start_time,
+    TUMBLE_END(ts, INTERVAL '10' SECOND) end_time,
+    COUNT(*) `count`
+FROM note_info
+WHERE behavior = 'access'
+GROUP BY user_id, note_id, TUMBLE(ts, INTERVAL '10' SECOND)
+
+
+# 统计每个用户每个5秒内日记
+
+
+# 统计10秒内连续登录失败3次的用户信息
+INSERT INTO login_warning
+SELECT *
+FROM login_info
+MATCH_RECOGNIZE(
+    PARTITION BY user_id
+    ORDER BY ts
+    MEASURES
+        COUNT(*) as `count`,
+        FIRST(A.ts, 0) as begin_time,
+        FIRST(A.ts, 2)  as end_time
+    ONE ROW PER MATCH
+    AFTER MATCH SKIP PAST LAST ROW
+    PATTERN (A{3}) WITHIN INTERVAL '10' SECOND
+    DEFINE A AS A.behavior = 'fail'
+)
+
+# 统计每个用户每天
+
+
+
+
+
+
+
+
+SELECT *
+FROM note
+MATCH_RECOGNIZE
+(
+PARTITION BY userId
+ORDER BY ts
+MEASURES
+FIRST(A.userId)
+ONE ROW PER MATCH
+AFTER MATCH SKIP PAST LAST ROW
+PATTERN (A{5})
+DEFINE A AS A.behavior = 'access'
+)

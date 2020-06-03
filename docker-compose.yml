@@ -2,7 +2,7 @@ version: "3"
 services: 
   backend:
     image: registry.cn-hangzhou.aliyuncs.com/cookie0512/note-springboot:7.0
-    container_name: "backend"
+    # container_name: "backend"
     volumes: 
     - ./my-note/project/:/project/
     - ./my-note/entrypoint.sh:/entrypoint.sh
@@ -17,6 +17,7 @@ services:
     ports:
     - 5005:5005
     - 8082:8082
+    privileged: true
     #network_mode: host
   frontend:
     image: registry.cn-hangzhou.aliyuncs.com/cookie0512/note-vue:5.0   
@@ -31,7 +32,7 @@ services:
       #network_mode: host
   mymysql:
     image: mysql
-    container_name: mymysql
+    # container_name: mymysql
     volumes: 
     - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     - ./mysql/init.sh:/docker-entrypoint-initdb.d/init.sh
@@ -41,18 +42,22 @@ services:
     privileged: true
     #network_mode: host
   myes:
+    privileged: true
     image: elasticsearch:6.8.6
-    container_name: myes
+    # container_name: myes
     volumes: 
     - ./elasticsearch/ik/:/usr/share/elasticsearch/plugins/ik/
     # - ./elasticsearch/data:/usr/share/elasticsearch/data
+    # - ./elasticsearch/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
     environment:
     - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
     #network_mode: host
   myredis:
     image: redis
-    container_name: myredis
+    # container_name: myredis
     #network_mode: host
+    #deploy:
+    #  replicas: 3
     volumes:
     - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: "redis-server /usr/local/etc/redis/redis.conf"
@@ -77,6 +82,20 @@ services:
     volumes:
     - ./flink/login-detection.jar:/login-detection.jar
     - ./flink/note-statistics.jar:/note-statistics.jar
+    - ./flink/conf/sql-client-defaults.yaml:/opt/flink/conf/sql-client-defaults.yaml
+    - ./flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+    - D:/Temp7/flink-json.jar:/opt/flink/lib/flink-json.jar
+    - D:/Temp7/flink-jdbc.jar:/opt/flink/lib/flink-jdbc.jar
+    - D:/Temp7/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
+      #- D:/Temp7/flink-kafka.jar:/opt/flink/lib/flink-kafka.jar
+    - D:/Temp7/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
+    - D:/Temp7/flink-csv.jar:/opt/flink/lib/flink-csv.jar
+      #- D:/Temp7/flink-kafka2.jar:/opt/flink/lib/flink-kafka2.jar
+      #- D:/Temp7/flink-kafka-base.jar:/opt/flink/lib/flink-kafka-base.jar
+      #- D:/Temp7/kafka-clients.jar:/opt/flink/lib/kafka-clients.jar
+      #- D:/Temp7/kafka-clients2.jar:/opt/flink/lib/kafka-clients2.jar
+      #- D:/Temp7/flink-cep.jar:/opt/flink/lib/flink-cep.jar
+      #- D:/Temp7/force-shading.jar:/opt/flink/lib/force-shading.jar
   taskmanager:
     image: flink
     depends_on:
@@ -85,3 +104,18 @@ services:
     environment:
     - JOB_MANAGER_RPC_ADDRESS=jobmanager
     #network_mode: host
+    volumes:
+    - ./flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+    - D:/Temp7/flink-json.jar:/opt/flink/lib/flink-json.jar
+    - D:/Temp7/flink-jdbc.jar:/opt/flink/lib/flink-jdbc.jar
+    - D:/Temp7/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
+    - D:/Temp7/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
+      #- D:/Temp7/flink-kafka.jar:/opt/flink/lib/flink-kafka.jar
+    #- D:/Temp7/flink-kafka2.jar:/opt/flink/lib/flink-kafka2.jar
+    #- D:/Temp7/flink-kafka-base.jar:/opt/flink/lib/flink-kafka-base.jar
+      #- D:/Temp7/kafka-clients.jar:/opt/flink/lib/kafka-clients.jar
+      #- D:/Temp7/kafka-clients2.jar:/opt/flink/lib/kafka-clients2.jar
+    - D:/Temp7/flink-csv.jar:/opt/flink/lib/flink-csv.jar
+    - D:/Temp7/flink-cep.jar:/opt/flink/lib/flink-cep.jar
+    - D:/Temp7/flink-blink.jar:/opt/flink/lib/flink-blink.jar
+      #- D:/Temp7/force-shading.jar:/opt/flink/lib/force-shading.jar
