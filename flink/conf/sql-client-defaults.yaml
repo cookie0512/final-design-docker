@@ -106,8 +106,6 @@ tables:
       # property-version: 1
       schema: "ROW(user_id BIGINT, behavior STRING, event_time TIMESTAMP)"
 
-
-
 # functions:
 # - name: timeDiff
 #   from: class
