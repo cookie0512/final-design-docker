@@ -4,10 +4,7 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/cookie0512/note-springboot:7.0
     # container_name: "backend"
     volumes: 
-    - ./my-note/project/:/project/
     - ./my-note/entrypoint.sh:/entrypoint.sh
-    - ./my-note/settings.xml:/usr/share/maven/conf/settings.xml
-    - ./my-note/a.jar:/a.jar
     entrypoint: 
     - /entrypoint.sh
     depends_on: 
@@ -72,7 +69,7 @@ services:
     depends_on:
     - myzookeeper
   jobmanager:
-    image: flink
+    image: flink:1.10.0
     ports:
     - 8081:8081
     command: jobmanager
@@ -84,20 +81,15 @@ services:
     - ./flink/note-statistics.jar:/note-statistics.jar
     - ./flink/conf/sql-client-defaults.yaml:/opt/flink/conf/sql-client-defaults.yaml
     - ./flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    - D:/Temp7/flink-json.jar:/opt/flink/lib/flink-json.jar
-    - D:/Temp7/flink-jdbc.jar:/opt/flink/lib/flink-jdbc.jar
-    - D:/Temp7/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
-      #- D:/Temp7/flink-kafka.jar:/opt/flink/lib/flink-kafka.jar
-    - D:/Temp7/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
-    - D:/Temp7/flink-csv.jar:/opt/flink/lib/flink-csv.jar
-      #- D:/Temp7/flink-kafka2.jar:/opt/flink/lib/flink-kafka2.jar
-      #- D:/Temp7/flink-kafka-base.jar:/opt/flink/lib/flink-kafka-base.jar
-      #- D:/Temp7/kafka-clients.jar:/opt/flink/lib/kafka-clients.jar
-      #- D:/Temp7/kafka-clients2.jar:/opt/flink/lib/kafka-clients2.jar
+    - ./flink/flink-json.jar:/opt/flink/lib/flink-json.jar
+    - ./flink/flink-jdbc.jar:/opt/flink/lib/flink-jdbc.jar
+    - ./flink/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
+    - ./flink/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
+    - ./flink/flink-csv.jar:/opt/flink/lib/flink-csv.jar
+    # - D:/Temp7/flink-blink.jar:/opt/flink/lib/flink-blink.jar
       #- D:/Temp7/flink-cep.jar:/opt/flink/lib/flink-cep.jar
-      #- D:/Temp7/force-shading.jar:/opt/flink/lib/force-shading.jar
   taskmanager:
-    image: flink
+    image: flink:1.10.0
     depends_on:
       - jobmanager
     command: taskmanager
@@ -106,16 +98,11 @@ services:
     #network_mode: host
     volumes:
     - ./flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    - D:/Temp7/flink-json.jar:/opt/flink/lib/flink-json.jar
-    - D:/Temp7/flink-jdbc.jar:/opt/flink/lib/flink-jdbc.jar
-    - D:/Temp7/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
-    - D:/Temp7/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
-      #- D:/Temp7/flink-kafka.jar:/opt/flink/lib/flink-kafka.jar
-    #- D:/Temp7/flink-kafka2.jar:/opt/flink/lib/flink-kafka2.jar
-    #- D:/Temp7/flink-kafka-base.jar:/opt/flink/lib/flink-kafka-base.jar
-      #- D:/Temp7/kafka-clients.jar:/opt/flink/lib/kafka-clients.jar
-      #- D:/Temp7/kafka-clients2.jar:/opt/flink/lib/kafka-clients2.jar
-    - D:/Temp7/flink-csv.jar:/opt/flink/lib/flink-csv.jar
-    - D:/Temp7/flink-cep.jar:/opt/flink/lib/flink-cep.jar
-    - D:/Temp7/flink-blink.jar:/opt/flink/lib/flink-blink.jar
-      #- D:/Temp7/force-shading.jar:/opt/flink/lib/force-shading.jar
+    - ./flink/conf/sql-client-defaults.yaml:/opt/flink/conf/sql-client-defaults.yaml
+    - ./flink/flink-json.jar:/opt/flink/lib/flink-json.jar
+    - ./flink/flink-jdbc.jar:/opt/flink/lib/flink-jdbc.jar
+    - ./flink/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
+    - ./flink/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
+    - ./flink/flink-csv.jar:/opt/flink/lib/flink-csv.jar
+    - ./flink/flink-cep.jar:/opt/flink/lib/flink-cep.jar
+    # - D:/Temp7/flink-blink.jar:/opt/flink/lib/flink-blink.jar
