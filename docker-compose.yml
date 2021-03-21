@@ -28,7 +28,7 @@ services:
     - backend
       #network_mode: host
   mymysql:
-    image: mysql
+    image: mysql:8.0.19
     # container_name: mymysql
     volumes: 
     - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -69,7 +69,7 @@ services:
     depends_on:
     - myzookeeper
   jobmanager:
-    image: flink:1.10.0
+    image: flink:1.10.2
     ports:
     - 8081:8081
     command: jobmanager
@@ -86,10 +86,11 @@ services:
     - ./flink/flink-mysql.jar:/opt/flink/lib/flink-mysql.jar
     - ./flink/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
     - ./flink/flink-csv.jar:/opt/flink/lib/flink-csv.jar
+    # - ./flink/flink-connector-elasticsearch6.jar:/opt/flink/lib/flink-connector-elasticsearch6.jar
     # - D:/Temp7/flink-blink.jar:/opt/flink/lib/flink-blink.jar
       #- D:/Temp7/flink-cep.jar:/opt/flink/lib/flink-cep.jar
   taskmanager:
-    image: flink:1.10.0
+    image: flink:1.10.2
     depends_on:
       - jobmanager
     command: taskmanager
@@ -105,4 +106,5 @@ services:
     - ./flink/my-flink-kafka.jar:/opt/flink/lib/my-flink-kafka.jar
     - ./flink/flink-csv.jar:/opt/flink/lib/flink-csv.jar
     - ./flink/flink-cep.jar:/opt/flink/lib/flink-cep.jar
+    # - ./flink/flink-connector-elasticsearch6.jar:/opt/flink/lib/flink-connector-elasticsearch6.jar
     # - D:/Temp7/flink-blink.jar:/opt/flink/lib/flink-blink.jar
